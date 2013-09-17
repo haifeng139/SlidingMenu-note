@@ -55,6 +55,9 @@ public class CustomViewAbove extends ViewGroup {
 
 	private boolean mScrollingCacheEnabled;
 
+	/**
+	 * 是否正在滑动
+	 */
 	private boolean mScrolling;
 
 	private boolean mIsBeingDragged;
@@ -81,8 +84,17 @@ public class CustomViewAbove extends ViewGroup {
 	 * Determines speed during touch scrolling
 	 */
 	protected VelocityTracker mVelocityTracker;
+	/**
+	 * 放手时能继续向目标滚动所需的最小速度
+	 */
 	private int mMinimumVelocity;
+	/**
+	 * 放手时最大滚动初始速度
+	 */
 	protected int mMaximumVelocity;
+	/**
+	 * 放手时能按速度方向继续向目标滚动所需的最小已滚动距离 默认25dp所对应的像素值
+	 */
 	private int mFlingDistance;
 
 	private CustomViewBehind mViewBehind;
@@ -216,6 +228,13 @@ public class CustomViewAbove extends ViewGroup {
 		setCurrentItemInternal(item, smoothScroll, always, 0);
 	}
 
+	/**
+	 * 设置当前显示的item
+	 * @param item 0：左菜单 1：内容 2：右菜单
+	 * @param smoothScroll 是否平滑滚动
+	 * @param always
+	 * @param velocity 平滑滚动时的初始速度
+	 */
 	void setCurrentItemInternal(int item, boolean smoothScroll, boolean always, int velocity) {
 		if (!always && mCurItem == item) {
 			setScrollingCacheEnabled(false);
@@ -303,6 +322,11 @@ public class CustomViewAbove extends ViewGroup {
 		return (float) FloatMath.sin(f);
 	}
 
+	/**
+	 * 获取需要滚动的目标x
+	 * @param page 0左菜单 2 右菜单 1 内容
+	 * @return
+	 */
 	public int getDestScrollX(int page) {
 		switch (page) {
 		case 0:
@@ -330,6 +354,9 @@ public class CustomViewAbove extends ViewGroup {
 		return mCurItem == 0 || mCurItem == 2;
 	}
 
+	/**
+	 * 运动事件的坐标是否在mIgnoredViews所包含的的view中
+	 */
 	private boolean isInIgnoredView(MotionEvent ev) {
 		Rect rect = new Rect();
 		for (View v : mIgnoredViews) {
@@ -483,7 +510,10 @@ public class CustomViewAbove extends ViewGroup {
 				mContent.getPaddingRight(), mContent.getPaddingBottom());
 	}
 
-
+	/**
+	 * ontouch或invalidate(）或postInvalidate() 后会执行此方法
+	 * 设置当前滚动状态 并触发下一帧滚动
+	 */
 	@Override
 	public void computeScroll() {
 		if (!mScroller.isFinished()) {
@@ -508,6 +538,9 @@ public class CustomViewAbove extends ViewGroup {
 		completeScroll();
 	}
 
+	/**
+	 * 滚动后计算 当前页：position，当前页偏移像素offsetPixels，当前页偏移比例offset
+	 */
 	private void pageScrolled(int xpos) {
 		final int widthWithMargin = getWidth();
 		final int position = xpos / widthWithMargin;
@@ -572,6 +605,9 @@ public class CustomViewAbove extends ViewGroup {
 		return mTouchMode;
 	}
 
+	/**
+	 * 事件ev是否允许
+	 */
 	private boolean thisTouchAllowed(MotionEvent ev) {
 		int x = (int) (ev.getX() + mScrollX);
 		if (isMenuOpen()) {
@@ -589,6 +625,9 @@ public class CustomViewAbove extends ViewGroup {
 		return false;
 	}
 
+	/**
+	 * 是否允许滑动dx
+	 */
 	private boolean thisSlideAllowed(float dx) {
 		boolean allowed = false;
 		if (isMenuOpen()) {
@@ -777,6 +816,9 @@ public class CustomViewAbove extends ViewGroup {
 		return true;
 	}
 	
+	/**
+	 * 确定拖动
+	 */
 	private void determineDrag(MotionEvent ev) {
 		final int activePointerId = mActivePointerId;
 		final int pointerIndex = getPointerIndex(ev, activePointerId);
@@ -799,6 +841,9 @@ public class CustomViewAbove extends ViewGroup {
 		}
 	}
 
+	/**
+	 * 执行滚动
+	 */
 	@Override
 	public void scrollTo(int x, int y) {
 		super.scrollTo(x, y);
@@ -807,6 +852,12 @@ public class CustomViewAbove extends ViewGroup {
 		((SlidingMenu)getParent()).manageLayers(getPercentOpen());
 	}
 
+	/**
+	 * 确定放手后 要滚动到的目标item
+	 * @param pageOffset 放手时当前item被滚动的比例
+	 * @param velocity 放手时的速度
+	 * @param deltaX 放手时总共滚过的像素
+	 */
 	private int determineTargetPage(float pageOffset, int velocity, int deltaX) {
 		int targetPage = mCurItem;
 		if (Math.abs(deltaX) > mFlingDistance && Math.abs(velocity) > mMinimumVelocity) {
@@ -816,6 +867,7 @@ public class CustomViewAbove extends ViewGroup {
 				targetPage += 1;
 			}
 		} else {
+			//速度不够 按中点分
 			targetPage = (int) Math.round(mCurItem + pageOffset);
 		}
 		return targetPage;
@@ -853,11 +905,17 @@ public class CustomViewAbove extends ViewGroup {
 		}
 	}
 
+	/**
+	 * 开始拖动
+	 */
 	private void startDrag() {
 		mIsBeingDragged = true;
 		mQuickReturn = false;
 	}
 
+	/**
+	 * 结束拖动
+	 */
 	private void endDrag() {
 		mQuickReturn = false;
 		mIsBeingDragged = false;
@@ -870,6 +928,9 @@ public class CustomViewAbove extends ViewGroup {
 		}
 	}
 
+	/**
+	 * 设置滚动式是否开启cache
+	 */
 	private void setScrollingCacheEnabled(boolean enabled) {
 		if (mScrollingCacheEnabled != enabled) {
 			mScrollingCacheEnabled = enabled;
