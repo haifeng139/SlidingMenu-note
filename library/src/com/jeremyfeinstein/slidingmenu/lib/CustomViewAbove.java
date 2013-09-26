@@ -101,6 +101,9 @@ public class CustomViewAbove extends ViewGroup {
 	//	private int mMode;
 	private boolean mEnabled = true;
 
+	/**
+	 * 当前页面改变listener 触发SlidingMenu的mOpenListener等的调用
+	 */
 	private OnPageChangeListener mOnPageChangeListener;
 	private OnPageChangeListener mInternalPageChangeListener;
 
@@ -614,12 +617,12 @@ public class CustomViewAbove extends ViewGroup {
 			return mViewBehind.menuOpenTouchAllowed(mContent, mCurItem, x);
 		} else {
 			switch (mTouchMode) {
-			case SlidingMenu.TOUCHMODE_FULLSCREEN:
+			case SlidingMenu.TOUCHMODE_FULLSCREEN://TOUCHMODE_FULLSCREEN模式时检测是否在忽略的view上
 				return !isInIgnoredView(ev);
 			case SlidingMenu.TOUCHMODE_NONE:
 				return false;
 			case SlidingMenu.TOUCHMODE_MARGIN:
-				return mViewBehind.marginTouchAllowed(mContent, x);
+				return mViewBehind.marginTouchAllowed(mContent, x);//TOUCHMODE_MARGIN模式时检测触摸起点是否位于margin内
 			}
 		}
 		return false;
@@ -651,6 +654,7 @@ public class CustomViewAbove extends ViewGroup {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		Log.i(TAG, "onInterceptTouchEvent");
 
 		if (!mEnabled)
 			return false;
@@ -705,6 +709,7 @@ public class CustomViewAbove extends ViewGroup {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
+		Log.i(TAG, "onTouchEvent");
 
 		if (!mEnabled)
 			return false;
@@ -873,6 +878,9 @@ public class CustomViewAbove extends ViewGroup {
 		return targetPage;
 	}
 
+	/**
+	 * 获取当前menu打开的比例
+	 */
 	protected float getPercentOpen() {
 		return Math.abs(mScrollX-mContent.getLeft()) / getBehindWidth();
 	}

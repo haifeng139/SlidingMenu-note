@@ -33,8 +33,8 @@ public class SlidingMenu extends RelativeLayout {
 
 	private static final String TAG = "SlidingMenu";
 
-	public static final int SLIDING_WINDOW = 0;
-	public static final int SLIDING_CONTENT = 1;
+	public static final int SLIDING_WINDOW = 0;//滑动整个窗口
+	public static final int SLIDING_CONTENT = 1;//只滑动内容
 	private boolean mActionbarOverlay = false;
 
 	/** Constant value for use with setTouchModeAbove(). Allows the SlidingMenu to be opened with a swipe
@@ -233,6 +233,7 @@ public class SlidingMenu extends RelativeLayout {
 		// now style everything!
 		TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingMenu);
 		// set the above and behind views if defined in xml
+		//设置模式与content menu 如果xml中有定义
 		int mode = ta.getInt(R.styleable.SlidingMenu_mode, LEFT);
 		setMode(mode);
 		int viewAbove = ta.getResourceId(R.styleable.SlidingMenu_viewAbove, -1);
@@ -294,7 +295,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Attaches the SlidingMenu to an entire Activity
-	 * 
+	 * 替换activity的根/内容视图为SlidingMenu的RelativeLayout 将根/内容视图加入到SlidingMenu的mViewAbove 作为其content
 	 * @param activity the Activity
 	 * @param slideStyle either SLIDING_CONTENT or SLIDING_WINDOW
 	 * @param actionbarOverlay whether or not the ActionBar is overlaid
@@ -306,7 +307,7 @@ public class SlidingMenu extends RelativeLayout {
 		if (getParent() != null)
 			throw new IllegalStateException("This SlidingMenu appears to already be attached");
 
-		// get the window background
+		// get the window background 获得window 背景
 		TypedArray a = activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.windowBackground});
 		int background = a.getResourceId(0, 0);
 		a.recycle();
@@ -314,7 +315,7 @@ public class SlidingMenu extends RelativeLayout {
 		switch (slideStyle) {
 		case SLIDING_WINDOW:
 			mActionbarOverlay = false;
-			ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();
+			ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();//获取根视图
 			ViewGroup decorChild = (ViewGroup) decor.getChildAt(0);
 			// save ActionBar themes that have transparent assets
 			decorChild.setBackgroundResource(background);
@@ -325,12 +326,13 @@ public class SlidingMenu extends RelativeLayout {
 		case SLIDING_CONTENT:
 			mActionbarOverlay = actionbarOverlay;
 			// take the above view out of
-			ViewGroup contentParent = (ViewGroup)activity.findViewById(android.R.id.content);
+			ViewGroup contentParent = (ViewGroup)activity.findViewById(android.R.id.content);//获取内容视图
 			View content = contentParent.getChildAt(0);
 			contentParent.removeView(content);
 			contentParent.addView(this);
 			setContent(content);
 			// save people from having transparent backgrounds
+			//如果content没有背景 设置默认背景
 			if (content.getBackground() == null)
 				content.setBackgroundResource(background);
 			break;
@@ -340,7 +342,7 @@ public class SlidingMenu extends RelativeLayout {
 	/**
 	 * Set the above view content from a layout resource. The resource will be inflated, adding all top-level views
 	 * to the above view.
-	 *
+	 * 设置ViewAbove的内容
 	 * @param res the new content
 	 */
 	public void setContent(int res) {
@@ -349,7 +351,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Set the above view content to the given View.
-	 *
+	 * 设置ViewAbove的内容
 	 * @param view The desired content to display.
 	 */
 	public void setContent(View view) {
@@ -368,7 +370,7 @@ public class SlidingMenu extends RelativeLayout {
 	/**
 	 * Set the behind view (menu) content from a layout resource. The resource will be inflated, adding all top-level views
 	 * to the behind view.
-	 *
+	 * 设置ViewBehind上的内容即菜单
 	 * @param res the new content
 	 */
 	public void setMenu(int res) {
@@ -377,7 +379,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Set the behind view (menu) content to the given View.
-	 *
+	 * 设置ViewBehind上的内容即菜单
 	 * @param view The desired content to display.
 	 */
 	public void setMenu(View v) {
@@ -395,7 +397,7 @@ public class SlidingMenu extends RelativeLayout {
 	/**
 	 * Set the secondary behind view (right menu) content from a layout resource. The resource will be inflated, adding all top-level views
 	 * to the behind view.
-	 *
+	 * 设置第二个菜单
 	 * @param res the new content
 	 */
 	public void setSecondaryMenu(int res) {
@@ -404,7 +406,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Set the secondary behind view (right menu) content to the given View.
-	 *
+	 * 设置第二个菜单
 	 * @param view The desired content to display.
 	 */
 	public void setSecondaryMenu(View v) {
@@ -441,6 +443,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Sets which side the SlidingMenu should appear on.
+	 * 设置模式
 	 * @param mode must be either SlidingMenu.LEFT or SlidingMenu.RIGHT
 	 */
 	public void setMode(int mode) {
@@ -529,6 +532,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Toggle the SlidingMenu. If it is open, it will be closed, and vice versa.
+	 * 显示或关闭menu
 	 */
 	public void toggle() {
 		toggle(true);
@@ -536,7 +540,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Toggle the SlidingMenu. If it is open, it will be closed, and vice versa.
-	 *
+	 * 显示或关闭menu
 	 * @param animate true to animate the transition, false to ignore animation
 	 */
 	public void toggle(boolean animate) {
@@ -679,7 +683,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Sets the behind scroll scale.
-	 *
+	 * 设置behind相对于above的移动比例 默认0.33
 	 * @param f The scale of the parallax scroll (i.e. 1.0f scrolls 1 pixel for every
 	 * 1 pixel that the above view scrolls and 0.0f scrolls 0 pixels)
 	 */
@@ -691,7 +695,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Sets the behind canvas transformer.
-	 *
+	 * 设置behind在滑动式的额外动画
 	 * @param t the new behind canvas transformer
 	 */
 	public void setBehindCanvasTransformer(CanvasTransformer t) {
@@ -741,7 +745,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Sets the shadow drawable.
-	 *
+	 * 设置阴影drawable
 	 * @param resId the resource ID of the new shadow drawable
 	 */
 	public void setShadowDrawable(int resId) {
@@ -850,7 +854,7 @@ public class SlidingMenu extends RelativeLayout {
 
 	/**
 	 * Add a View ignored by the Touch Down event when mode is Fullscreen
-	 *
+	 * 添加忽略view
 	 * @param v a view to be ignored
 	 */
 	public void addIgnoredView(View v) {

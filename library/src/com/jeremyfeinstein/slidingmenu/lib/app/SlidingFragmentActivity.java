@@ -1,6 +1,7 @@
 package com.jeremyfeinstein.slidingmenu.lib.app;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -25,6 +26,7 @@ public class SlidingFragmentActivity extends SherlockFragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i("SlidingFragmentActivity", "onCreate");
 		mHelper = new SlidingActivityHelper(this);
 		mHelper.onCreate(savedInstanceState);
 	}
@@ -35,6 +37,7 @@ public class SlidingFragmentActivity extends SherlockFragmentActivity implements
 	@Override
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
+		Log.i("SlidingFragmentActivity", "onPostCreate");
 		mHelper.onPostCreate(savedInstanceState);
 	}
 
