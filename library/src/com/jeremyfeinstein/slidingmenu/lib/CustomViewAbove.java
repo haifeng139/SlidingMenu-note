@@ -41,6 +41,9 @@ public class CustomViewAbove extends ViewGroup {
 	private static final int MAX_SETTLE_DURATION = 600; // ms
 	private static final int MIN_DISTANCE_FOR_FLING = 25; // dips
 
+	/**
+	 * curX = ((curT/totalT - 1)^5 + 1)*totalX
+	 */
 	private static final Interpolator sInterpolator = new Interpolator() {
 		public float getInterpolation(float t) {
 			t -= 1.0f;
@@ -60,12 +63,25 @@ public class CustomViewAbove extends ViewGroup {
 	 */
 	private boolean mScrolling;
 
+	/**
+	 * 是否已经开始拖动
+	 */
 	private boolean mIsBeingDragged;
+	/**
+	 * 是否为无效拖动
+	 */
 	private boolean mIsUnableToDrag;
+	/**
+	 * 确定为拖动的最小拖动距离
+	 */
 	private int mTouchSlop;
+	/**
+	 * ACTION_DOWN时手x的坐标
+	 */
 	private float mInitialMotionX;
 	/**
 	 * Position of the last motion event.
+	 * 上一次的坐标
 	 */
 	private float mLastMotionX;
 	private float mLastMotionY;
@@ -105,6 +121,9 @@ public class CustomViewAbove extends ViewGroup {
 	 * 当前页面改变listener 触发SlidingMenu的mOpenListener等的调用
 	 */
 	private OnPageChangeListener mOnPageChangeListener;
+	/**
+	 * 内部当前页面改变listener 滚动时 实时设置ViewBehind是否有效
+	 */
 	private OnPageChangeListener mInternalPageChangeListener;
 
 	//	private OnCloseListener mCloseListener;
@@ -112,6 +131,9 @@ public class CustomViewAbove extends ViewGroup {
 	private OnClosedListener mClosedListener;
 	private OnOpenedListener mOpenedListener;
 
+	/**
+	 * 忽略不监控touch事件view
+	 */
 	private List<View> mIgnoredViews = new ArrayList<View>();
 
 	//	private int mScrollState = SCROLL_STATE_IDLE;
@@ -172,17 +194,26 @@ public class CustomViewAbove extends ViewGroup {
 		initCustomViewAbove();
 	}
 
+	/**
+	 * 初始化
+	 */
 	void initCustomViewAbove() {
 		setWillNotDraw(false);
 		setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 		setFocusable(true);
 		final Context context = getContext();
+		//初始化Scroller
 		mScroller = new Scroller(context, sInterpolator);
+		//初始化最小拖动距离 最大最小速度
 		final ViewConfiguration configuration = ViewConfiguration.get(context);
 		mTouchSlop = ViewConfigurationCompat.getScaledPagingTouchSlop(configuration);
 		mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
 		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
+		//设置内部页面改变
 		setInternalPageChangeListener(new SimpleOnPageChangeListener() {
+			/**
+			 * 滚动时 实时设置ViewBehind是否有效
+			 */
 			public void onPageSelected(int position) {
 				if (mViewBehind != null) {
 					switch (position) {
@@ -198,6 +229,7 @@ public class CustomViewAbove extends ViewGroup {
 			}
 		});
 
+		//初始化放手时能按速度方向继续向目标滚动所需的最小已滚动距离 默认25dp所对应的像素值
 		final float density = context.getResources().getDisplayMetrics().density;
 		mFlingDistance = (int) (MIN_DISTANCE_FOR_FLING * density);
 	}
@@ -235,7 +267,7 @@ public class CustomViewAbove extends ViewGroup {
 	 * 设置当前显示的item
 	 * @param item 0：左菜单 1：内容 2：右菜单
 	 * @param smoothScroll 是否平滑滚动
-	 * @param always
+	 * @param always 为false 则item与当前相等时不执行操作
 	 * @param velocity 平滑滚动时的初始速度
 	 */
 	void setCurrentItemInternal(int item, boolean smoothScroll, boolean always, int velocity) {
@@ -301,6 +333,9 @@ public class CustomViewAbove extends ViewGroup {
 		return oldListener;
 	}
 
+	/**
+	 * 添加忽略
+	 */
 	public void addIgnoredView(View v) {
 		if (!mIgnoredViews.contains(v)) {
 			mIgnoredViews.add(v);
@@ -451,7 +486,7 @@ public class CustomViewAbove extends ViewGroup {
 		} else {
 			final float pageDelta = (float) Math.abs(dx) / width;
 			duration = (int) ((pageDelta + 1) * 100);
-			duration = MAX_SETTLE_DURATION;
+			//duration = MAX_SETTLE_DURATION;///////////////
 		}
 		duration = Math.min(duration, MAX_SETTLE_DURATION);
 
@@ -476,11 +511,13 @@ public class CustomViewAbove extends ViewGroup {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
+		Log.i(TAG, "onMeasure");
+		//设置viewAbove按默认即match_parent父元素
 		int width = getDefaultSize(0, widthMeasureSpec);
 		int height = getDefaultSize(0, heightMeasureSpec);
 		setMeasuredDimension(width, height);
 
+		//设置content match_parent viewAbove
 		final int contentWidth = getChildMeasureSpec(widthMeasureSpec, 0, width);
 		final int contentHeight = getChildMeasureSpec(heightMeasureSpec, 0, height);
 		mContent.measure(contentWidth, contentHeight);
@@ -488,6 +525,7 @@ public class CustomViewAbove extends ViewGroup {
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		Log.i(TAG, "onSizeChanged");
 		super.onSizeChanged(w, h, oldw, oldh);
 		// Make sure scroll position is set correctly.
 		if (w != oldw) {
@@ -501,6 +539,7 @@ public class CustomViewAbove extends ViewGroup {
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		Log.i(TAG, "onLayout");
 		final int width = r - l;
 		final int height = b - t;
 		mContent.layout(0, 0, width, height);
@@ -574,6 +613,9 @@ public class CustomViewAbove extends ViewGroup {
 		}
 	}
 
+	/**
+	 * 结束滚动
+	 */
 	private void completeScroll() {
 		boolean needPopulate = mScrolling;
 		if (needPopulate) {
