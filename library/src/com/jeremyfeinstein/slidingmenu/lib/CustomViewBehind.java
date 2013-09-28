@@ -341,6 +341,7 @@ public class CustomViewBehind extends ViewGroup {
 
 	/**
 	 * 菜单打开时是否允许touch
+	 * TOUCHMODE_MARGIN 时检测是否在QuickReturn区域
 	 */
 	public boolean menuOpenTouchAllowed(View content, int currPage, float x) {
 		switch (mTouchMode) {
@@ -353,7 +354,7 @@ public class CustomViewBehind extends ViewGroup {
 	}
 
 	/**
-	 * 菜单打开时x是否在快速关闭菜单范围内
+	 * 菜单打开时 x是否在快速关闭菜单范围内
 	 */
 	public boolean menuTouchInQuickReturn(View content, int currPage, float x) {
 		if (mMode == SlidingMenu.LEFT || (mMode == SlidingMenu.LEFT_RIGHT && currPage == 0)) {

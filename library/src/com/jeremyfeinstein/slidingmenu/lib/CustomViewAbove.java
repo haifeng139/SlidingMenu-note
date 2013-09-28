@@ -640,6 +640,9 @@ public class CustomViewAbove extends ViewGroup {
 		mScrolling = false;
 	}
 
+	/**
+	 * 触摸模式
+	 */
 	protected int mTouchMode = SlidingMenu.TOUCHMODE_MARGIN;
 
 	public void setTouchMode(int i) {
@@ -685,6 +688,9 @@ public class CustomViewAbove extends ViewGroup {
 		return allowed;
 	}
 
+	/**
+	 * MotionEventCompat.findPointerIndex(ev, id);
+	 */
 	private int getPointerIndex(MotionEvent ev, int id) {
 		int activePointerIndex = MotionEventCompat.findPointerIndex(ev, id);
 		if (activePointerIndex == -1)
@@ -692,6 +698,9 @@ public class CustomViewAbove extends ViewGroup {
 		return activePointerIndex;
 	}
 
+	/**
+	 * 是否快速返回
+	 */
 	private boolean mQuickReturn = false;
 
 	@Override
@@ -937,6 +946,9 @@ public class CustomViewAbove extends ViewGroup {
 	}
 
 	// variables for drawing
+	/**
+	 * 当前滚动x值
+	 */
 	private float mScrollX = 0.0f;
 
 	private void onSecondaryPointerUp(MotionEvent ev) {
