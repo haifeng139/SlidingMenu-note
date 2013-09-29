@@ -117,18 +117,19 @@ public class CustomViewBehind extends ViewGroup {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent e) {
-		Log.i(TAG, "onInterceptTouchEvent");
+		//Log.i(TAG, "onInterceptTouchEvent");
 		return !mChildrenEnabled;
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
-		Log.i(TAG, "onTouchEvent");
+		//Log.i(TAG, "onTouchEvent");
 		return !mChildrenEnabled;
 	}
 
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
+		//Log.i(TAG, "dispatchDraw");
 		if (mTransformer != null) {
 			canvas.save();
 			mTransformer.transformCanvas(canvas, mViewAbove.getPercentOpen());

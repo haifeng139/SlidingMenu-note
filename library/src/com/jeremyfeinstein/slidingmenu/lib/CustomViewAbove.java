@@ -555,6 +555,7 @@ public class CustomViewAbove extends ViewGroup {
 	/**
 	 * ontouch或invalidate(）或postInvalidate() 后会执行此方法
 	 * 设置当前滚动状态 并触发下一帧滚动
+	 * scrollTo不会触发ViewGroup自身重绘
 	 */
 	@Override
 	public void computeScroll() {
